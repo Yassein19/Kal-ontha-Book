@@ -1,0 +1,22 @@
+{
+  "name": "kal-ontha",
+  "version": "1.0.0",
+  "description": "Kal Ontha (كأنثى) Author Website & Protected Reader - بدور لطفي",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "seed": "npm --prefix backend run seed",
+    "generate:pages": "node ingest/generate-sample-pages.js"
+  },
+  "keywords": [
+    "author-website",
+    "book-reader",
+    "protected-canvas",
+    "anti-piracy",
+    "kal-ontha",
+    "bedour-lotfi"
+  ],
+  "author": "بدور لطفي (Bedour Lotfi)",
+  "license": "ISC"
+}

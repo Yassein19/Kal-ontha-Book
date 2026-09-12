@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1130" width="800" height="1130">
+  <defs>
+    <linearGradient id="coverBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18151D"/>
+      <stop offset="50%" stop-color="#241B28"/>
+      <stop offset="100%" stop-color="#141118"/>
+    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&amp;family=Cairo:wght@300;400;600;700;900&amp;display=swap');
+      text { direction: rtl; unicode-bidi: embed; }
+    </style>
+  </defs>
+  
+      <rect width="100%" height="100%" fill="#FCF9F5" />
+      <rect x="25" y="25" width="750" height="1080" rx="6" fill="none" stroke="#EFE8DD" stroke-width="1"/>
+      
+        <text x="400" y="180" font-family="'Cairo', sans-serif" font-size="32" fill="#2C2825" text-anchor="middle" font-weight="bold">فهرس الرحلة</text>
+        <path d="M 330 205 L 470 205" stroke="#C5A880" stroke-width="1.5"/>
+
+        <g transform="translate(100, 280)">
+          
+              <g transform="translate(0, 0)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">المقدمة</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">نوركِ يستحق أن يُرى</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">٥</text>
+              </g>
+            
+              <g transform="translate(0, 85)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">الفصل الأول</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">صوت المشاعر: كيف نفهم ما لا يُقال؟</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">١٢</text>
+              </g>
+            
+              <g transform="translate(0, 170)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">الفصل الثاني</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">تفكيك المعتقدات والقوالب الجاهزة</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">٣٨</text>
+              </g>
+            
+              <g transform="translate(0, 255)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">الفصل الثالث</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">الجسد كبوصلة: التصالح والإنصات العميق</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">٦٤</text>
+              </g>
+            
+              <g transform="translate(0, 340)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">الفصل الرابع</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">قيمكِ واحتياجاتكِ الحقيقية</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">٩٢</text>
+              </g>
+            
+              <g transform="translate(0, 425)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">الفصل الخامس</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">من الفهم إلى الأثر: صناعة حياة نابضة</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">١٢٠</text>
+              </g>
+            
+              <g transform="translate(0, 510)">
+                <text x="590" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#7A6F64" text-anchor="end">الخاتمة</text>
+                <text x="500" y="25" font-family="'Cairo', sans-serif" font-size="20" fill="#1C1814" text-anchor="end" font-weight="600">إشراقة لا تنطفئ</text>
+                <path d="M 120 20 L 220 20" stroke="#E2DCD4" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="80" y="25" font-family="'Cairo', sans-serif" font-size="18" fill="#C5A880" text-anchor="end">١٤٥</text>
+              </g>
+            
+        </g>
+      
+      
+      <!-- Footer Page Number -->
+      <path d="M 90 1040 L 710 1040" stroke="#EBE4D8" stroke-width="1"/>
+      <text x="400" y="1075" font-family="'Cairo', sans-serif" font-size="16" fill="#756B5F" text-anchor="middle" font-weight="600">3</text>
+    
+</svg>

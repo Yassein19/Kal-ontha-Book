@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1130" width="800" height="1130">
+  <defs>
+    <linearGradient id="coverBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18151D"/>
+      <stop offset="50%" stop-color="#241B28"/>
+      <stop offset="100%" stop-color="#141118"/>
+    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&amp;family=Cairo:wght@300;400;600;700;900&amp;display=swap');
+      text { direction: rtl; unicode-bidi: embed; }
+    </style>
+  </defs>
+  
+      <rect width="100%" height="100%" fill="#FCF9F5" />
+      <rect x="25" y="25" width="750" height="1080" rx="6" fill="none" stroke="#EFE8DD" stroke-width="1"/>
+      
+        <!-- Running Header -->
+        <text x="700" y="90" font-family="'Cairo', sans-serif" font-size="14" fill="#998F82" text-anchor="end">الفصل الخامس</text>
+        <text x="100" y="90" font-family="'Cairo', sans-serif" font-size="14" fill="#998F82" text-anchor="start">كأنثى — بدور لطفي</text>
+        <path d="M 90 110 L 710 110" stroke="#EBE4D8" stroke-width="1"/>
+
+        <!-- Chapter Heading -->
+        <text x="400" y="190" font-family="'Cairo', sans-serif" font-size="28" fill="#211C18" text-anchor="middle" font-weight="bold">من الفهم إلى الأثر الحقيقي</text>
+        <circle cx="400" cy="225" r="3" fill="#C5A880"/>
+
+        <!-- Paragraphs -->
+        <g transform="translate(100, 290)">
+          
+              <text x="600" y="0" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">فهم الذات ليس غاية في حد ذاته، بل هو المحرك الأساسي لتحويل ط</text>
+              <text x="600" y="40" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">اقتكِ إلى حياة أكثر حيوية وإنجازًا وتأثيرًا.</text>
+              <text x="600" y="80" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2"></text>
+            
+              <text x="600" y="160" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">حين تكونين على وعي بقيمكِ العليا، تصبح قراراتكِ أكثر شجاعة و</text>
+              <text x="600" y="200" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">وضوحًا. لن تضيعي وقتكِ في صراعات لا تخصكِ، ولن تستنزفي طاقتكِ في </text>
+              <text x="600" y="240" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">علاقات لا تقدر قيمتكِ.</text>
+            
+              <text x="600" y="320" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">إن دوركِ ليس فقط أن تنجحي بمقاييس الآخرين، بل أن تنوري محيطك</text>
+              <text x="600" y="360" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2">ِ بنوركِ الخاص الفريد.</text>
+              <text x="600" y="400" font-family="'Amiri', serif" font-size="22" fill="#2C2722" text-anchor="end" line-height="2"></text>
+            
+        </g>
+      
+      
+      <!-- Footer Page Number -->
+      <path d="M 90 1040 L 710 1040" stroke="#EBE4D8" stroke-width="1"/>
+      <text x="400" y="1075" font-family="'Cairo', sans-serif" font-size="16" fill="#756B5F" text-anchor="middle" font-weight="600">9</text>
+    
+</svg>

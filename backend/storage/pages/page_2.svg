@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1130" width="800" height="1130">
+  <defs>
+    <linearGradient id="coverBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18151D"/>
+      <stop offset="50%" stop-color="#241B28"/>
+      <stop offset="100%" stop-color="#141118"/>
+    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&amp;family=Cairo:wght@300;400;600;700;900&amp;display=swap');
+      text { direction: rtl; unicode-bidi: embed; }
+    </style>
+  </defs>
+  
+      <rect width="100%" height="100%" fill="#FCF9F5" />
+      <rect x="25" y="25" width="750" height="1080" rx="6" fill="none" stroke="#EFE8DD" stroke-width="1"/>
+      
+        <text x="400" y="240" font-family="'Amiri', 'Cairo', serif" font-size="36" fill="#C5A880" text-anchor="middle" font-weight="bold">إهداء</text>
+        <path d="M 340 270 L 460 270" stroke="#C5A880" stroke-width="1" opacity="0.5"/>
+        
+        <g transform="translate(100, 360)">
+          <text x="300" y="0" font-family="'Amiri', serif" font-size="22" fill="#2C2825" text-anchor="middle" line-height="1.8">إلى كل أنثى نسيت في زحام الأيام كيف تلمع..</text><text x="300" y="70" font-family="'Amiri', serif" font-size="22" fill="#2C2825" text-anchor="middle" line-height="1.8">إلى الروح النقية التي تحارب بصمت خلف ابتسامة صامدة..</text><text x="300" y="140" font-family="'Amiri', serif" font-size="22" fill="#2C2825" text-anchor="middle" line-height="1.8">إلى التي تبحث عن نفسها بين ركام التوقعات والواجبات..</text><text x="300" y="210" font-family="'Amiri', serif" font-size="22" fill="#2C2825" text-anchor="middle" line-height="1.8">هذا الكتاب ليس مجرد كلمات.. إنه مرآة لروحك، ودعوة صادقة للعودة إلى موطنكِ الأول: ذاتك الحقيقية.</text>
+        </g>
+        
+        <text x="400" y="780" font-family="'Amiri', serif" font-size="26" fill="#C5A880" text-anchor="middle" font-weight="bold">بدور لطفي</text>
+      
+      
+      <!-- Footer Page Number -->
+      <path d="M 90 1040 L 710 1040" stroke="#EBE4D8" stroke-width="1"/>
+      <text x="400" y="1075" font-family="'Cairo', sans-serif" font-size="16" fill="#756B5F" text-anchor="middle" font-weight="600">2</text>
+    
+</svg>

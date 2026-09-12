@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1130" width="800" height="1130">
+  <defs>
+    <linearGradient id="coverBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18151D"/>
+      <stop offset="50%" stop-color="#241B28"/>
+      <stop offset="100%" stop-color="#141118"/>
+    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&amp;family=Cairo:wght@300;400;600;700;900&amp;display=swap');
+      text { direction: rtl; unicode-bidi: embed; }
+    </style>
+  </defs>
+  
+      <rect width="100%" height="100%" fill="#FCF9F5" />
+      <rect x="25" y="25" width="750" height="1080" rx="6" fill="none" stroke="#EFE8DD" stroke-width="1"/>
+      
+        <rect x="80" y="160" width="640" height="800" rx="16" fill="#F8F4EE" stroke="#DECDB8" stroke-width="1.5"/>
+        <text x="400" y="230" font-family="'Cairo', sans-serif" font-size="26" fill="#A8586A" text-anchor="middle" font-weight="bold">✨ تمرين عملي: الإنصات الواعي</text>
+        <path d="M 300 260 L 500 260" stroke="#DECDB8" stroke-width="1"/>
+
+        <g transform="translate(120, 340)">
+          
+              <rect x="0" y="0" width="560" height="75" rx="10" fill="#FFFFFF" stroke="#EFE7DC" stroke-width="1"/>
+              <text x="530" y="46" font-family="'Cairo', sans-serif" font-size="18" fill="#2B2621" text-anchor="end" font-weight="500">١. اجلسي في مكان هادئ لمدة خمس دقائق، وأغمضي عينيكِ.</text>
+            
+              <rect x="0" y="110" width="560" height="75" rx="10" fill="#FFFFFF" stroke="#EFE7DC" stroke-width="1"/>
+              <text x="530" y="156" font-family="'Cairo', sans-serif" font-size="18" fill="#2B2621" text-anchor="end" font-weight="500">٢. خذي ثلاثة أنفاس عميقة، وركزي انتباهكِ على منطقة الصدر.</text>
+            
+              <rect x="0" y="220" width="560" height="75" rx="10" fill="#FFFFFF" stroke="#EFE7DC" stroke-width="1"/>
+              <text x="530" y="266" font-family="'Cairo', sans-serif" font-size="18" fill="#2B2621" text-anchor="end" font-weight="500">٣. اسألي نفسكِ برفق: ما الذي أحتاجه حقًا في هذه اللحظة؟</text>
+            
+              <rect x="0" y="330" width="560" height="75" rx="10" fill="#FFFFFF" stroke="#EFE7DC" stroke-width="1"/>
+              <text x="530" y="376" font-family="'Cairo', sans-serif" font-size="18" fill="#2B2621" text-anchor="end" font-weight="500">٤. اكتبي الإجابة الأولى التي تظهر في وعيكِ دون إصدار أي أحكام.</text>
+            
+        </g>
+      
+      
+      <!-- Footer Page Number -->
+      <path d="M 90 1040 L 710 1040" stroke="#EBE4D8" stroke-width="1"/>
+      <text x="400" y="1075" font-family="'Cairo', sans-serif" font-size="16" fill="#756B5F" text-anchor="middle" font-weight="600">8</text>
+    
+</svg>

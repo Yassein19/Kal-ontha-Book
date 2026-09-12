@@ -1,0 +1,193 @@
+﻿# Author Website v2 — Protected Reader + Global Deployment
+
+Covers: 4-page public/private site, a book reader that can't be downloaded or printed, and a deployment approach that performs well worldwide.
+
+---
+
+## 1. Site Map
+
+| Page | Access | Purpose |
+|---|---|---|
+| `/` — Book | Public | Marketing page for the book/novel — cover, blurb, reviews, CTA |
+| `/author` | Public | Author bio, photo, other works |
+| `/contact` | Public | Contact form → stored in DB and/or emailed to the author |
+| `/login` | Public | Admin-issued username/password (no registration) — from the device-lock system we designed earlier |
+| `/reader` | **Protected** | The actual book, rendered so it cannot be downloaded or printed |
+
+---
+
+## 2. The core problem: making a book "readable but not copyable"
+
+There's no way to make content 100% uncopyable in a browser (a screenshot is always possible), but you can make it **impractical to extract a clean, printable, shareable file** — which is what actually stops casual piracy/sharing. The right approach is:
+
+### Don't ever send the real PDF to the browser.
+
+Instead:
+
+1. **At upload time**, convert the PDF into individual page images (PNG/WebP) on the server — one image per page. Store these in private object storage, never the original PDF.
+2. **At read time**, the reader page fetches page images **one at a time**, through short-lived signed URLs (60–120 seconds), and draws each one onto an HTML `<canvas>` — never an `<img>` tag, and never injected as a downloadable blob.
+3. **Overlay a watermark** on each page with the reader's email + a timestamp + device ID, burned into the canvas itself (not a CSS overlay, which can be removed via devtools). This is exactly the kind of protection your "Canvas قارئ" reader already does — this design formalizes it.
+4. **Disable the obvious escape hatches**:
+   - `@media print { body { display: none } }` — nothing prints
+   - `user-select: none` on the reader container — no text selection/copy
+   - Block the context menu (`oncontextmenu="return false"`) — no "Save image as"
+   - Disable common devtools/print shortcuts (Ctrl+P, Ctrl+S, F12) — deters casual attempts (a determined user can still bypass this, but it stops 95% of sharing)
+5. **Rate-limit page requests per session** — if someone tries to script-fetch every page rapidly (to reassemble the book), throttle and flag the account.
+
+This is the same "never let the big/sensitive asset pass through in a reusable form" principle from the presigned-URL fix we used for the PDF-streaming 413 error — just applied one layer further, at the page-image level instead of the whole-file level.
+
+---
+
+## 3. Database Schema (additions to the earlier design)
+
+```sql
+-- Individual rendered pages of a book (replaces raw PDF exposure)
+CREATE TABLE book_pages (
+    id SERIAL PRIMARY KEY,
+    book_id INTEGER REFERENCES books(id),
+    page_number INT NOT NULL,
+    image_key TEXT NOT NULL,        -- private storage key, never a public URL
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Contact form submissions
+CREATE TABLE contact_messages (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(150),
+    email VARCHAR(255),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Reuse from before: users (readers), with device_token + is_locked
+-- Reuse from before: books (title, description, cover_image_url, etc.)
+```
+
+---
+
+## 4. System Architecture
+
+```
+                         ┌───────────────────────┐
+                         │        Visitor          │
+                         └───────────┬─────────────┘
+                                     │ HTTPS (global)
+                         ┌───────────▼─────────────┐
+                         │   CDN (Cloudflare/       │  ← caches public pages
+                         │   CloudFront) — global    │     (Book, Author, Contact)
+                         └───────────┬─────────────┘
+                    ┌────────────────┼────────────────┐
+                    │                                  │
+         ┌──────────▼─────────┐            ┌───────────▼───────────┐
+         │  Public pages        │            │   Login / Reader API   │
+         │  (static, cached)     │            │   (always dynamic,     │
+         │  Book / Author /      │            │   never cached)         │
+         │  Contact                │            └───────────┬───────────┘
+         └──────────────────────┘                            │
+                                                    ┌───────────▼───────────┐
+                                                    │  Backend server         │
+                                                    │  - auth + device lock   │
+                                                    │  - contact form handler │
+                                                    │  - issues signed URLs   │
+                                                    │    for ONE page image   │
+                                                    │    at a time            │
+                                                    └───────────┬───────────┘
+                                       ┌────────────────────────┼────────────────────────┐
+                                       │                                                  │
+                            ┌──────────▼──────────┐                          ┌────────────▼────────────┐
+                            │  PostgreSQL           │                          │  Private object storage   │
+                            │  users, books,        │                          │  (S3/Spaces/R2)           │
+                            │  book_pages,          │                          │  - page images (private)  │
+                            │  contact_messages     │                          │  - original PDF (never    │
+                            └───────────────────────┘                          │    served directly)       │
+                                                                                └───────────────────────────┘
+```
+
+**Why public pages and the reader are architecturally separate:** the Book/Author/Contact pages are static and benefit hugely from CDN caching for global speed — they're the same for every visitor. The reader is the opposite: every request must be authenticated, checked against the device lock, and served a fresh signed URL — so it must never be cached, and always hits your backend.
+
+---
+
+## 5. Folder Architecture
+
+```
+author-website/
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Book.jsx              # public
+│   │   │   ├── Author.jsx            # public
+│   │   │   ├── Contact.jsx           # public
+│   │   │   ├── Login.jsx             # public
+│   │   │   └── Reader.jsx            # protected — canvas renderer lives here
+│   │   ├── components/
+│   │   │   ├── reader/
+│   │   │   │   ├── CanvasPage.jsx    # draws one page image to <canvas>
+│   │   │   │   ├── Watermark.js      # burns watermark into canvas context
+│   │   │   │   └── ReaderControls.jsx
+│   │   │   └── ContactForm.jsx
+│   │   ├── hooks/
+│   │   │   └── useProtectedPage.js   # fetches signed URL for current page only
+│   │   └── services/api.js
+│   └── package.json
+│
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── auth.routes.js        # login, device-lock check
+│   │   │   ├── reader.routes.js      # GET /reader/page/:n → signed URL, one page only
+│   │   │   └── contact.routes.js
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   │   ├── auth.middleware.js
+│   │   │   └── rateLimiter.js        # throttles page-fetch requests per session
+│   │   ├── services/
+│   │   │   ├── storage.service.js    # generates short-lived signed URLs
+│   │   │   └── pdfIngest.service.js  # one-time job: PDF → page images at upload
+│   │   └── models/
+│   │       ├── book.model.js
+│   │       ├── bookPage.model.js
+│   │       ├── user.model.js
+│   │       └── contactMessage.model.js
+│   ├── migrations/
+│   └── package.json
+│
+├── ingest/                            # offline/admin tool
+│   └── pdf-to-images.js               # run once per new book: splits PDF into page PNGs
+│
+└── infra/
+    ├── nginx/ (if self-hosted)
+    └── deploy.sh
+```
+
+---
+
+## 6. Global Deployment Recommendation
+
+Given you want worldwide reach and want to avoid AWS:
+
+- **Public pages (Book/Author/Contact):** deploy as a static build on **Cloudflare Pages** — free, globally distributed by default, no config needed for "global."
+- **Backend (auth, reader API, contact form):** a small VM on **DigitalOcean** (pick the region closest to your primary audience) or **Fly.io**, which specifically supports running your backend in multiple regions close to users if you later need lower reader-side latency.
+- **Storage (page images + original PDFs):** **Cloudflare R2** — zero egress fees matter a lot here, since every page turn is a new image request; R2 also pairs natively with Cloudflare's global CDN/edge network.
+- **Database:** a managed PostgreSQL instance (DigitalOcean Managed DB, or Neon if you want serverless Postgres) — this doesn't need to be "global," since auth checks are small and fast even with some latency; only the static/media layer needs to be globally distributed.
+
+This gives you: instant page loads everywhere for the marketing pages (Cloudflare's edge), zero-cost bandwidth for the book's page images (R2), and a single, predictable backend for the security-sensitive parts (auth, device lock, signed URLs) that don't need to be globally replicated.
+
+
+
+
+contact email :bedour.lotfi77@gmail.com
+contact : +20 12 07151711
+
+about me : أنا بدور لطفي، مستشارة وعي ذاتي وجودة حياة.
+
+أساعدكِ تفهمي نفسكِ بعمق؛ مشاعركِ، أفكاركِ، معتقداتكِ، قيمكِ واحتياجاتكِ، وتبني علاقة أكثر وعيًا وصحة مع جسدكِ.
+
+عشان تحولي فهمكِ لنفسكِ إلى حياة أكثر حيوية، وإنجازًا وأثرًا.
+
+أنا مؤمنة إن جوا كل واحدة فينا نور جميل من ربنا، لكن ضغوط الحياة والأدوار والتجارب ممكن تبعدنا عنه.
+
+ودوري أساعدكِ تكتشفي النور اللي جواكي، تعيشي منه، وتنوري بيه حياتكِ وتتركي أثرًا.
+
+ *لأن نوركِ يستحق أن يُرى.*
+
+ 
