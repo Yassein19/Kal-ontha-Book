@@ -7,6 +7,7 @@ async function seed() {
   // 1. Users
   const readerPasswordHash = await bcrypt.hash('read2026', 10);
   const adminPasswordHash = await bcrypt.hash('Yassein123#', 10);
+  const authorPasswordHash = await bcrypt.hash('password123#', 10);
 
   // Clear existing users
   execute('DELETE FROM users');
@@ -18,14 +19,22 @@ async function seed() {
     ['reader@kal-ontha.com', 'مريم أحمد (قارئة معتمدة)', readerPasswordHash, null, 0, 'reader']
   );
 
+  // Author account: Bedour Lotfi
+  execute(
+    `INSERT INTO users (email, name, password_hash, device_token, is_locked, role)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    ['bedour.lotfi77@gmail.com', 'أ. بدور لطفي (المؤلفة)', authorPasswordHash, null, 0, 'author']
+  );
+
   // The Only Admin: Yassein Ahmed
   execute(
     `INSERT INTO users (email, name, password_hash, device_token, is_locked, role)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    ['yasssokamel@gmail.com', 'ياسين أحمد (المدير الوحيد)', adminPasswordHash, null, 0, 'admin']
+    ['yasssokamel@gmail.com', 'ياسين أحمد (المدير العام)', adminPasswordHash, null, 0, 'admin']
   );
 
   console.log('✓ Seeded users:');
+  console.log('  - Author:     bedour.lotfi77@gmail.com / password123#');
   console.log('  - Only Admin: yasssokamel@gmail.com / Yassein123#');
   console.log('  - Reader:     reader@kal-ontha.com / read2026');
 

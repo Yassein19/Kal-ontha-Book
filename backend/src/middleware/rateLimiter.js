@@ -6,7 +6,7 @@ export const readerRateLimiter = rateLimit({
   limit: 1200, // Allows fast scrolling and rapid page flipping (up to 20 requests per sec)
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.user?.role === 'admin', // Admins have completely unlimited access
+  skip: (req) => req.user?.role === 'admin' || req.user?.role === 'author', // Admins and Authors have completely unlimited access
   message: {
     error: 'TOO_MANY_REQUESTS',
     message:

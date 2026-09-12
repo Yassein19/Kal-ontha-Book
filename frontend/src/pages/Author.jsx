@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Heart, Compass, MessageCircle, Mail, Phone, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import authorImg from '../assets/author.jpg';
 
 export function Author() {
   const counselingAreas = [
@@ -32,9 +33,12 @@ export function Author() {
             <div className="author-portrait-frame">
               <div className="author-portrait-art author-portrait-real">
                 <img
-                  src="/author.jpg"
+                  src={authorImg || '/author.jpg'}
                   alt="المستشارة والكاتبة بدور لطفي"
                   className="author-real-img"
+                  onError={(e) => {
+                    e.currentTarget.src = '/author.jpg';
+                  }}
                 />
                 <div className="author-portrait-gradient-overlay"></div>
               </div>

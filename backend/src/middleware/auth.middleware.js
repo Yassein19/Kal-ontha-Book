@@ -27,9 +27,9 @@ export function authenticate(req, res, next) {
       });
     }
 
-    // Check device lock (readers only, admins are exempt)
+    // Check device lock (readers only, admins and authors are exempt)
     const clientDeviceToken = req.headers['x-device-token'] || decoded.deviceToken;
-    if (user.role !== 'admin' && user.is_locked && user.device_token && user.device_token !== clientDeviceToken) {
+    if (user.role !== 'admin' && user.role !== 'author' && user.is_locked && user.device_token && user.device_token !== clientDeviceToken) {
       return res.status(403).json({
         error: 'DEVICE_MISMATCH',
         message:
@@ -49,10 +49,10 @@ export function authenticate(req, res, next) {
 }
 
 export function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') {
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'author')) {
     return res.status(403).json({
       error: 'FORBIDDEN',
-      message: 'هذا الإجراء يتطلب صلاحيات المشرف.',
+      message: 'هذا الإجراء يتطلب صلاحيات المشرف أو الكاتبة.',
     });
   }
   next();

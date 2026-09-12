@@ -11,7 +11,26 @@ async function runTests() {
   const bData = await bRes.json();
   console.log('2. Book Meta:', bData.book.title, `(${bData.book.totalPages} pages)`, 'PASS');
 
-  // 3. Login
+  // 3. Reset Reader lock for reproducible test
+  await fetch('http://localhost:5000/api/auth/reset-device-lock/7', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: 7 }),
+  });
+
+  // 4. Test Author Login (bedour.lotfi77@gmail.com)
+  const aRes = await fetch('http://localhost:5000/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: 'bedour.lotfi77@gmail.com',
+      password: 'password123#',
+    }),
+  });
+  const aData = await aRes.json();
+  console.log('3. Author Login:', aData.success ? 'PASS' : 'FAIL', 'Author:', aData.user?.email, 'Role:', aData.user?.role);
+
+  // 5. Login Reader
   const deviceToken = 'dev_test_device_123';
   const lRes = await fetch('http://localhost:5000/api/auth/login', {
     method: 'POST',
@@ -23,7 +42,7 @@ async function runTests() {
     }),
   });
   const lData = await lRes.json();
-  console.log('3. Login Reader:', lData.success ? 'PASS' : 'FAIL', 'User:', lData.user?.email);
+  console.log('4. Login Reader:', lData.success ? 'PASS' : 'FAIL', 'User:', lData.user?.email);
   const token = lData.token;
 
   // 4. Device Lock Enforcement Test (Try login with DIFFERENT device)

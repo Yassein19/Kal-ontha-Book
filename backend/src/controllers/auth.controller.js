@@ -33,8 +33,8 @@ export async function login(req, res) {
 
     const incomingDeviceToken = deviceToken || 'web_browser_default_token';
 
-    // Device lock check & bind (Admins are exempt)
-    if (user.role === 'admin') {
+    // Device lock check & bind (Admins and Authors are exempt)
+    if (user.role === 'admin' || user.role === 'author') {
       user.device_token = incomingDeviceToken;
     } else if (!user.is_locked || !user.device_token) {
       // First login: Lock account to this specific device
@@ -98,10 +98,10 @@ export function me(req, res) {
   });
 }
 
-// Admin or user reset for testing & support
 export function resetDeviceLock(req, res) {
   try {
-    const targetUserId = req.body.userId || req.user.id;
+    const rawId = req.params?.userId || req.body?.userId || req.user?.id;
+    const targetUserId = parseInt(rawId, 10);
     execute('UPDATE users SET device_token = NULL, is_locked = 0 WHERE id = ?', [targetUserId]);
 
     return res.json({

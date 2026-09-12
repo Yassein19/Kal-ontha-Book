@@ -19,6 +19,8 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Book />} />
           <Route path="/author" element={<Author />} />
+          <Route path="/about" element={<Author />} />
+          <Route path="/about-me" element={<Author />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/reader" element={<Reader />} />

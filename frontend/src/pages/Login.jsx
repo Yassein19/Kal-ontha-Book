@@ -33,7 +33,10 @@ export function Login() {
   };
 
   const handleQuickFill = (type) => {
-    if (type === 'reader') {
+    if (type === 'author') {
+      setEmail('bedour.lotfi77@gmail.com');
+      setPassword('password123#');
+    } else if (type === 'reader') {
       setEmail('reader@kal-ontha.com');
       setPassword('read2026');
     } else if (type === 'admin') {
@@ -183,8 +186,16 @@ export function Login() {
 
           {/* Quick Fill Testing Helper */}
           <div className="login-quick-demo">
-            <span className="demo-label">حسابات تجريبية سريعة للاختبار:</span>
+            <span className="demo-label">حسابات سريعة للاختبار:</span>
             <div className="demo-btns">
+              <button
+                type="button"
+                className="btn-demo-pill"
+                onClick={() => handleQuickFill('author')}
+                style={{ borderColor: 'var(--gold-primary)', color: 'var(--gold-light)' }}
+              >
+                الكاتبة: bedour.lotfi77@gmail.com
+              </button>
               <button
                 type="button"
                 className="btn-demo-pill"
