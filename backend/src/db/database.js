@@ -23,6 +23,18 @@ if (fs.existsSync(schemaPath)) {
   db.exec(schemaSql);
 }
 
+// Ensure username column exists in users table (safe migration)
+try {
+  db.exec('ALTER TABLE users ADD COLUMN username TEXT');
+} catch (e) {
+  // Column already exists or table freshly created
+}
+try {
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username) WHERE username IS NOT NULL');
+} catch (e) {
+  // Index creation fallback
+}
+
 // Database helper functions
 export const queryAll = (sql, params = []) => {
   const stmt = db.prepare(sql);

@@ -7,6 +7,7 @@ import Author from './pages/Author';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Reader from './pages/Reader';
+import AdminDashboard from './pages/AdminDashboard';
 
 function AppContent() {
   const location = useLocation();
@@ -24,6 +25,8 @@ function AppContent() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/reader" element={<Reader />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/readers" element={<AdminDashboard />} />
           <Route path="*" element={<Book />} />
         </Routes>
       </main>

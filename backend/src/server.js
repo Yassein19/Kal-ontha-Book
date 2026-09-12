@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import readerRoutes from './routes/reader.routes.js';
 import contactRoutes from './routes/contact.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/reader', readerRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 Handler
 app.use((req, res) => {

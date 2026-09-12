@@ -16,7 +16,7 @@ export function authenticate(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = queryOne(
-      'SELECT id, email, name, device_token, is_locked, role FROM users WHERE id = ?',
+      'SELECT id, email, username, name, device_token, is_locked, role FROM users WHERE id = ?',
       [decoded.userId]
     );
 
@@ -58,7 +58,18 @@ export function requireAdmin(req, res, next) {
   next();
 }
 
+export function requireStrictAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({
+      error: 'FORBIDDEN',
+      message: 'هذا الإجراء متاح حصريًا لمدير النظام (Admin Only).',
+    });
+  }
+  next();
+}
+
 export default {
   authenticate,
   requireAdmin,
+  requireStrictAdmin,
 };

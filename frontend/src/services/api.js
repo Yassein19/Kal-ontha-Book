@@ -134,6 +134,31 @@ export const api = {
       });
     },
   },
+
+  admin: {
+    async createReader(payload) {
+      return request('/admin/readers', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+
+    async listReaders() {
+      return request('/admin/readers');
+    },
+
+    async resetReaderLock(readerId) {
+      return request(`/admin/readers/${readerId}/reset-lock`, {
+        method: 'POST',
+      });
+    },
+
+    async deleteReader(readerId) {
+      return request(`/admin/readers/${readerId}`, {
+        method: 'DELETE',
+      });
+    },
+  },
 };
 
 export default api;

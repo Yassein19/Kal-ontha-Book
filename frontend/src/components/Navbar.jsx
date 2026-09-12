@@ -22,12 +22,16 @@ export function Navbar() {
     navigate('/');
   };
 
-  const navLinks = [
+  const baseNavLinks = [
     { path: '/', label: 'الكتاب' },
     { path: '/author', label: 'عن الكاتبة' },
     { path: '/contact', label: 'تواصل واستشارات' },
     { path: '/reader', label: 'القارئ الرقمي', highlight: true },
   ];
+
+  const navLinks = user?.role === 'admin'
+    ? [...baseNavLinks, { path: '/admin', label: 'إدارة القارئات', isAdmin: true }]
+    : baseNavLinks;
 
   return (
     <header className="site-header">
@@ -51,10 +55,11 @@ export function Navbar() {
               to={link.path}
               className={`nav-link ${location.pathname === link.path ? 'active' : ''} ${
                 link.highlight ? 'nav-link-highlight' : ''
-              }`}
+              } ${link.isAdmin ? 'nav-link-admin' : ''}`}
             >
               {link.label}
               {link.highlight && <Sparkles size={14} className="nav-sparkle" />}
+              {link.isAdmin && <Shield size={14} className="nav-sparkle" color="#D4AF37" />}
             </Link>
           ))}
         </nav>
@@ -66,7 +71,7 @@ export function Navbar() {
               <div className="user-info-text">
                 <span className="user-name">{user.name || 'قارئة معتمدة'}</span>
                 <span className="user-status-tag">
-                  <Shield size={12} /> جهاز موثق
+                  <Shield size={12} /> {user.role === 'admin' ? 'مدير النظام' : user.role === 'author' ? 'المؤلفة' : 'جهاز موثق'}
                 </span>
               </div>
               <button onClick={handleLogout} className="btn-logout" title="تسجيل الخروج">

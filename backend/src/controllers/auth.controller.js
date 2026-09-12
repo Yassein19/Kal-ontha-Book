@@ -6,20 +6,24 @@ const JWT_SECRET = process.env.JWT_SECRET || 'kal_ontha_secure_jwt_secret_2026_b
 
 export async function login(req, res) {
   try {
-    const { email, password, deviceToken } = req.body;
+    const { email, username, password, deviceToken } = req.body;
+    const identifier = (email || username || '').trim();
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       return res.status(400).json({
         error: 'MISSING_FIELDS',
-        message: 'يرجى إدخال البريد الإلكتروني وكلمة المرور.',
+        message: 'يرجى إدخال البريد الإلكتروني أو اسم المستخدم وكلمة المرور.',
       });
     }
 
-    const user = queryOne('SELECT * FROM users WHERE LOWER(email) = LOWER(?)', [email.trim()]);
+    const user = queryOne(
+      'SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR (username IS NOT NULL AND LOWER(username) = LOWER(?))',
+      [identifier, identifier]
+    );
     if (!user) {
       return res.status(401).json({
         error: 'INVALID_CREDENTIALS',
-        message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+        message: 'البريد الإلكتروني / اسم المستخدم أو كلمة المرور غير صحيحة.',
       });
     }
 
@@ -59,6 +63,7 @@ export async function login(req, res) {
       {
         userId: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
         role: user.role,
         deviceToken: user.device_token,
@@ -73,6 +78,7 @@ export async function login(req, res) {
       user: {
         id: user.id,
         email: user.email,
+        username: user.username,
         name: user.name,
         role: user.role,
         isLocked: !!user.is_locked,
@@ -90,6 +96,7 @@ export function me(req, res) {
     user: {
       id: req.user.id,
       email: req.user.email,
+      username: req.user.username,
       name: req.user.name,
       role: req.user.role,
       isLocked: !!req.user.is_locked,

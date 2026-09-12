@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE,
     name TEXT,
     password_hash TEXT NOT NULL,
     device_token TEXT,
