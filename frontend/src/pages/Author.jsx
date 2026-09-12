@@ -30,11 +30,13 @@ export function Author() {
           {/* Author Portrait / Card */}
           <div className="author-portrait-wrapper">
             <div className="author-portrait-frame">
-              <div className="author-portrait-art">
-                <div className="author-initials-crest">
-                  <span>ب ل</span>
-                </div>
-                <div className="author-portrait-shimmer"></div>
+              <div className="author-portrait-art author-portrait-real">
+                <img
+                  src="/author.jpg"
+                  alt="المستشارة والكاتبة بدور لطفي"
+                  className="author-real-img"
+                />
+                <div className="author-portrait-gradient-overlay"></div>
               </div>
               <div className="author-badge-card">
                 <Sparkles size={18} color="#D4AF37" />
