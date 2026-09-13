@@ -15,15 +15,26 @@ export function authenticate(req, res, next) {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = queryOne(
-      'SELECT id, email, username, name, device_token, is_locked, role FROM users WHERE id = ?',
-      [decoded.userId]
-    );
+    // 1. Query by ID
+    let user = decoded.userId
+      ? queryOne(
+          'SELECT id, email, username, name, device_token, is_locked, role FROM users WHERE id = ?',
+          [decoded.userId]
+        )
+      : null;
+
+    // 2. Fallback: If DB was re-seeded and user ID shifted, recover by email from verified JWT
+    if (!user && decoded.email) {
+      user = queryOne(
+        'SELECT id, email, username, name, device_token, is_locked, role FROM users WHERE LOWER(email) = LOWER(?)',
+        [decoded.email]
+      );
+    }
 
     if (!user) {
       return res.status(401).json({
         error: 'USER_NOT_FOUND',
-        message: 'المستخدم غير موجود.',
+        message: 'المستخدم غير موجود. يرجى تسجيل الدخول مجددًا.',
       });
     }
 

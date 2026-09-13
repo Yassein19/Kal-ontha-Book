@@ -40,6 +40,19 @@ export function Reader() {
     }
     setUser(currentUser);
 
+    // Validate active session against backend
+    api.auth.me().then((res) => {
+      if (res.user) {
+        setUser(res.user);
+        localStorage.setItem('kal_ontha_user', JSON.stringify(res.user));
+      }
+    }).catch((err) => {
+      if (err.status === 401) {
+        api.auth.logout();
+        setUser(null);
+      }
+    });
+
     // Fetch book metadata
     async function loadMeta() {
       try {
