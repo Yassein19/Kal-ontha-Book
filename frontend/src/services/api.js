@@ -67,6 +67,12 @@ async function request(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    // Stale or invalid session -> clear dead token automatically
+    if (response.status === 401) {
+      localStorage.removeItem('kal_ontha_token');
+      localStorage.removeItem('kal_ontha_user');
+    }
+
     const error = new Error(data.message || 'حدث خطأ في الاتصال بالخادم');
     error.status = response.status;
     error.code = data.error;

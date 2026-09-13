@@ -313,17 +313,27 @@ export function CanvasPage({
           <ShieldAlert size={44} color="#E57373" />
           <h3>تنبيه أمان القارئ</h3>
           <p>{error}</p>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setError(null);
-              setReloadKey((k) => k + 1);
-            }}
-            className="btn btn-outline"
-            style={{ marginTop: '1rem' }}
-          >
-            إعادة المحاولة
-          </button>
+          {error.includes('المستخدم') || error.includes('الدخول') || error.includes('جلسة') ? (
+            <a
+              href="/login"
+              className="btn btn-gold"
+              style={{ marginTop: '1rem', display: 'inline-flex', padding: '0.6rem 1.4rem' }}
+            >
+              تسجيل الدخول مجددًا
+            </a>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setError(null);
+                setReloadKey((k) => k + 1);
+              }}
+              className="btn btn-outline"
+              style={{ marginTop: '1rem' }}
+            >
+              إعادة المحاولة
+            </button>
+          )}
         </div>
       )}
 
