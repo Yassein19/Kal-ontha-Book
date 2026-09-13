@@ -8,35 +8,44 @@ async function seed() {
   const readerPasswordHash = await bcrypt.hash('read2026', 10);
   const adminPasswordHash = await bcrypt.hash('Yassein123#', 10);
   const authorPasswordHash = await bcrypt.hash('password123', 10);
+  const zainabPasswordHash = await bcrypt.hash('zainab123', 10);
 
   // Clear existing users
   execute('DELETE FROM users');
 
-  // Reader account
+  // Reader account: Maryam
   execute(
-    `INSERT INTO users (email, name, password_hash, device_token, is_locked, role)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    ['reader@kal-ontha.com', 'مريم أحمد (قارئة معتمدة)', readerPasswordHash, null, 0, 'reader']
+    `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ['reader@kal-ontha.com', 'maryam_reader', 'مريم أحمد (قارئة معتمدة)', readerPasswordHash, null, 0, 'reader']
+  );
+
+  // Reader account: Zainab Mahmoud
+  execute(
+    `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ['zainabmahmoud290@gmail.com', 'zainab_mahmoud', 'زينب محمود (قارئة معتمدة)', zainabPasswordHash, null, 0, 'reader']
   );
 
   // Author account: Bedour Lotfi
   execute(
-    `INSERT INTO users (email, name, password_hash, device_token, is_locked, role)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    ['bedour.lotfi77@gmail.com', 'أ. بدور لطفي (المؤلفة)', authorPasswordHash, null, 0, 'author']
+    `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ['bedour.lotfi77@gmail.com', 'bedour_lotfi', 'أ. بدور لطفي (المؤلفة)', authorPasswordHash, null, 0, 'author']
   );
 
   // The Only Admin: Yassein Ahmed
   execute(
-    `INSERT INTO users (email, name, password_hash, device_token, is_locked, role)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    ['yasssokamel@gmail.com', 'ياسين أحمد (المدير العام)', adminPasswordHash, null, 0, 'admin']
+    `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ['yasssokamel@gmail.com', 'yassein_admin', 'ياسين أحمد (المدير العام)', adminPasswordHash, null, 0, 'admin']
   );
 
   console.log('✓ Seeded users:');
   console.log('  - Author:     bedour.lotfi77@gmail.com / password123');
   console.log('  - Only Admin: yasssokamel@gmail.com / Yassein123#');
-  console.log('  - Reader:     reader@kal-ontha.com / read2026');
+  console.log('  - Reader 1:   reader@kal-ontha.com / read2026');
+  console.log('  - Reader 2:   zainabmahmoud290@gmail.com / zainab123');
 
   // 2. Books
   execute('DELETE FROM books');
