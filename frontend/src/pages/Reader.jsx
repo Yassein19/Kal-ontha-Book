@@ -9,9 +9,9 @@ import {
   BookOpen,
   AlertTriangle,
   Sparkles,
-  Info,
-  Layers,
   ArrowRight,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export function Reader() {
@@ -22,11 +22,12 @@ export function Reader() {
     const saved = sessionStorage.getItem('kal_ontha_current_page');
     return saved ? parseInt(saved, 10) : 1;
   });
-  const [totalPages, setTotalPages] = useState(10);
+  const [totalPages, setTotalPages] = useState(336);
   const [theme, setTheme] = useState('warm'); // 'warm' | 'sepia' | 'dark'
   const [zoom, setZoom] = useState(1.0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [securityAlert, setSecurityAlert] = useState(null);
+  const [controlsVisible, setControlsVisible] = useState(true);
 
   const readerContainerRef = useRef(null);
 
@@ -62,7 +63,24 @@ export function Reader() {
     sessionStorage.setItem('kal_ontha_current_page', currentPage.toString());
   }, [currentPage]);
 
-  // 2. Anti-Piracy Keyboard Interceptors & Escape Hatch Blocking
+  // Page Navigation Handlers
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
+  const handleToggleControls = () => {
+    setControlsVisible((prev) => !prev);
+  };
+
+  const handleZoomToggle = () => {
+    setZoom((prev) => (prev > 1.15 ? 1.0 : 1.35));
+  };
+
+  // 2. Anti-Piracy Keyboard Interceptors & Navigation Shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Intercept Print (Ctrl+P, Cmd+P)
@@ -96,13 +114,19 @@ export function Reader() {
         return false;
       }
 
-      // Page Navigation Shortcuts
-      if (e.key === 'ArrowLeft' || e.key === 'PageDown') {
+      // Page Navigation Shortcuts (Keyboard)
+      if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
         // Next page in RTL
-        setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+        e.preventDefault();
+        handleNextPage();
       } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
         // Previous page in RTL
-        setCurrentPage((prev) => Math.max(1, prev - 1));
+        e.preventDefault();
+        handlePrevPage();
+      } else if (e.key === 'f' || e.key === 'F') {
+        handleToggleFullscreen();
+      } else if (e.key === 'Escape' && !controlsVisible) {
+        setControlsVisible(true);
       }
     };
 
@@ -120,7 +144,7 @@ export function Reader() {
       window.removeEventListener('keydown', handleKeyDown, { capture: true });
       window.removeEventListener('contextmenu', handleContextMenu);
     };
-  }, [totalPages]);
+  }, [totalPages, controlsVisible]);
 
   const triggerSecurityNotice = (msg) => {
     setSecurityAlert(msg);
@@ -159,7 +183,7 @@ export function Reader() {
               </div>
               <div className="locked-feature">
                 <Sparkles size={18} color="#D4AF37" />
-                <span>عرض عالي الدقة بنظام كانفاس المطور</span>
+                <span>عرض عالي الدقة بنظام كانفاس المطور المتوافق مع كافة الأجهزة</span>
               </div>
             </div>
 
@@ -181,7 +205,9 @@ export function Reader() {
   return (
     <div
       ref={readerContainerRef}
-      className={`page-reader reader-theme-${theme} ${isFullscreen ? 'is-fullscreen' : ''} reader-protected-area`}
+      className={`page-reader reader-theme-${theme} ${isFullscreen ? 'is-fullscreen' : ''} ${
+        !controlsVisible ? 'zen-immersion-mode' : ''
+      } reader-protected-area`}
       onContextMenu={(e) => e.preventDefault()}
     >
       {/* Security Toast Alert */}
@@ -193,7 +219,7 @@ export function Reader() {
       )}
 
       {/* Top Header Bar */}
-      <div className="reader-top-bar">
+      <header className={`reader-top-bar ${controlsVisible ? 'is-visible' : 'is-hidden'}`}>
         <div className="reader-meta-title">
           <BookOpen size={18} color="#D4AF37" />
           <span className="book-name">كأنثى</span>
@@ -202,25 +228,55 @@ export function Reader() {
 
         <div className="reader-watermark-indicator">
           <Shield size={14} color="#10B981" />
-          <span>القارئة: {user.email} (نسخة موثقة)</span>
+          <span className="watermark-text-full">القارئة: {user.email} (نسخة موثقة)</span>
+          <span className="watermark-text-compact">جهاز موثق</span>
         </div>
 
-        <Link to="/" className="btn-exit-reader" title="العودة للرئيسية">
-          <ArrowRight size={18} />
-          <span>مغادرة القارئ</span>
-        </Link>
-      </div>
+        <div className="reader-top-actions">
+          <button
+            onClick={handleToggleControls}
+            className="btn-reader-action"
+            title="تبديل وضع القراءة الكاملة"
+            aria-label="تبديل أشرطة القراءة"
+          >
+            {controlsVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+            <span className="action-text-desktop">وضع التركيز</span>
+          </button>
+
+          <Link to="/" className="btn-exit-reader" title="العودة للرئيسية">
+            <ArrowRight size={18} />
+            <span className="exit-text-desktop">مغادرة</span>
+          </Link>
+        </div>
+      </header>
 
       {/* Main Canvas Display Area */}
-      <div className="reader-canvas-viewport">
+      <main className="reader-canvas-viewport">
         <CanvasPage
           bookId={1}
           pageNumber={currentPage}
           user={user}
           theme={theme}
           zoom={zoom}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onToggleControls={handleToggleControls}
+          onZoomToggle={handleZoomToggle}
         />
-      </div>
+      </main>
+
+      {/* Floating Reveal Button when bars are hidden in Zen Mode */}
+      {!controlsVisible && (
+        <button
+          onClick={() => setControlsVisible(true)}
+          className="btn-reveal-controls animate-fade-in"
+          title="إظهار أشرطة القراءة"
+          aria-label="إظهار أشرطة التحكم"
+        >
+          <Eye size={18} />
+          <span>إظهار الأدوات</span>
+        </button>
+      )}
 
       {/* Bottom Sticky Controls */}
       <ReaderControls
@@ -233,6 +289,7 @@ export function Reader() {
         onZoomChange={setZoom}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
+        visible={controlsVisible}
       />
     </div>
   );

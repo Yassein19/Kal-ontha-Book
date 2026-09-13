@@ -1,4 +1,4 @@
-﻿# Author Website v2 — Protected Reader + Global Deployment
+# Author Website v2 — Protected Reader + Global Deployment
 
 Covers: 4-page public/private site, a book reader that can't be downloaded or printed, and a deployment approach that performs well worldwide.
 
