@@ -3,7 +3,9 @@
  * Manages JWT tokens, device fingerprinting, and API requests.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
 /**
  * Computes or retrieves a persistent unique device fingerprint
@@ -49,10 +51,18 @@ async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkErr) {
+    const error = new Error('تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت أو تشغيل الخادم.');
+    error.code = 'NETWORK_ERROR';
+    error.status = 0;
+    throw error;
+  }
 
   const data = await response.json().catch(() => ({}));
 

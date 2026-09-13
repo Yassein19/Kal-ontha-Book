@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Kal Ontha (كأنثى) Author Website & Protected Reader - بدور لطفي",
   "scripts": {
+    "start": "npm --prefix backend start",
+    "build": "npm --prefix frontend run build",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "build:frontend": "npm --prefix frontend run build",

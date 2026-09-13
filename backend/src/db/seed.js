@@ -7,7 +7,7 @@ async function seed() {
   // 1. Users
   const readerPasswordHash = await bcrypt.hash('read2026', 10);
   const adminPasswordHash = await bcrypt.hash('Yassein123#', 10);
-  const authorPasswordHash = await bcrypt.hash('password123#', 10);
+  const authorPasswordHash = await bcrypt.hash('password123', 10);
 
   // Clear existing users
   execute('DELETE FROM users');
@@ -34,7 +34,7 @@ async function seed() {
   );
 
   console.log('✓ Seeded users:');
-  console.log('  - Author:     bedour.lotfi77@gmail.com / password123#');
+  console.log('  - Author:     bedour.lotfi77@gmail.com / password123');
   console.log('  - Only Admin: yasssokamel@gmail.com / Yassein123#');
   console.log('  - Reader:     reader@kal-ontha.com / read2026');
 

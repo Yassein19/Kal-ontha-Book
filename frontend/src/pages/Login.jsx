@@ -35,7 +35,7 @@ export function Login() {
   const handleQuickFill = (type) => {
     if (type === 'author') {
       setEmail('bedour.lotfi77@gmail.com');
-      setPassword('password123#');
+      setPassword('password123');
     } else if (type === 'reader') {
       setEmail('reader@kal-ontha.com');
       setPassword('read2026');

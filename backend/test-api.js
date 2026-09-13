@@ -24,7 +24,7 @@ async function runTests() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       email: 'bedour.lotfi77@gmail.com',
-      password: 'password123#',
+      password: 'password123',
     }),
   });
   const aData = await aRes.json();
