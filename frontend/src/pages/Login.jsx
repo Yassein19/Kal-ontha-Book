@@ -23,8 +23,12 @@ export function Login() {
     setResetSuccess('');
 
     try {
-      await api.auth.login(email, password);
-      navigate(from, { replace: true });
+      const res = await api.auth.login(email, password);
+      const isAdminOrAuthor = res.user?.role === 'admin' || res.user?.role === 'author';
+      const destination = (location.state?.from?.pathname && location.state.from.pathname !== '/login')
+        ? location.state.from.pathname
+        : (isAdminOrAuthor ? '/admin' : '/reader');
+      navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message || 'فشل تسجيل الدخول. يرجى التحقق من البيانات المدخلة.');
     } finally {
@@ -42,6 +46,9 @@ export function Login() {
     } else if (type === 'admin') {
       setEmail('yasssokamel@gmail.com');
       setPassword('Yassein123#');
+    } else if (type === 'ahmed') {
+      setEmail('Ahmedelgamal1983@gmail.com');
+      setPassword('Ahmed123#');
     }
     setError('');
   };
@@ -209,6 +216,13 @@ export function Login() {
                 onClick={() => handleQuickFill('admin')}
               >
                 المدير العام: yasssokamel@gmail.com
+              </button>
+              <button
+                type="button"
+                className="btn-demo-pill"
+                onClick={() => handleQuickFill('ahmed')}
+              >
+                قارئ معتمد: Ahmedelgamal1983@gmail.com
               </button>
             </div>
           </div>

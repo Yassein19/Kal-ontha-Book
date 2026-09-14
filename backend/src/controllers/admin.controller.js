@@ -12,15 +12,7 @@ export async function createReader(req, res) {
   try {
     const { name, email, username, password } = req.body;
 
-    // 1. Validation - Name
-    if (!name || typeof name !== 'string' || name.trim().length < 2) {
-      return res.status(400).json({
-        error: 'INVALID_NAME',
-        message: 'يرجى إدخال اسم القارئة بشكل صحيح (حرفين على الأقل).',
-      });
-    }
-
-    // 2. Validation - Email
+    // 1. Validation - Email
     if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
       return res.status(400).json({
         error: 'INVALID_EMAIL',
@@ -30,35 +22,7 @@ export async function createReader(req, res) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check if email already exists
-    const existingEmail = queryOne('SELECT id FROM users WHERE LOWER(email) = ?', [cleanEmail]);
-    if (existingEmail) {
-      return res.status(409).json({
-        error: 'EMAIL_ALREADY_EXISTS',
-        message: 'هذا البريد الإلكتروني مسجل بالفعل لمستخدم آخر.',
-      });
-    }
-
-    // 3. Validation - Username
-    if (!username || typeof username !== 'string' || !USERNAME_REGEX.test(username.trim())) {
-      return res.status(400).json({
-        error: 'INVALID_USERNAME',
-        message: 'اسم المستخدم يجب أن يتكون من 3 إلى 30 حرفًا أو رقمًا إنجليزيًا بدون مسافات (يُسمح بـ _ و -).',
-      });
-    }
-
-    const cleanUsername = username.trim().toLowerCase();
-
-    // Check if username already exists
-    const existingUsername = queryOne('SELECT id FROM users WHERE LOWER(username) = ?', [cleanUsername]);
-    if (existingUsername) {
-      return res.status(409).json({
-        error: 'USERNAME_ALREADY_EXISTS',
-        message: 'اسم المستخدم هذا مستخدم بالفعل، يرجى اختيار اسم مستخدم آخر.',
-      });
-    }
-
-    // 4. Validation - Password
+    // 2. Validation - Password
     if (!password || typeof password !== 'string' || password.length < 6) {
       return res.status(400).json({
         error: 'INVALID_PASSWORD',
@@ -66,14 +30,72 @@ export async function createReader(req, res) {
       });
     }
 
-    // 5. Hash password and insert
-    const passwordHash = await bcrypt.hash(password, 10);
-    const trimmedName = name.trim();
+    // 3. Resolve Username (auto-derive if not provided or invalid)
+    let cleanUsername = (username && typeof username === 'string' && USERNAME_REGEX.test(username.trim()))
+      ? username.trim().toLowerCase()
+      : cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30).toLowerCase();
 
+    if (cleanUsername.length < 3) {
+      cleanUsername = `user_${cleanUsername}_${Date.now().toString().slice(-4)}`;
+    }
+
+    // 4. Resolve Name (auto-derive friendly name if not provided)
+    const cleanName = (name && typeof name === 'string' && name.trim().length >= 2)
+      ? name.trim()
+      : `قارئ معتمد (${cleanUsername})`;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Check if email already exists
+    const existingUser = queryOne('SELECT id, name, username, role, is_locked FROM users WHERE LOWER(email) = ?', [cleanEmail]);
+    if (existingUser) {
+      if (existingUser.role === 'reader') {
+        // Safe update for existing reader
+        execute(
+          `UPDATE users 
+           SET password_hash = ?, is_locked = 0, device_token = NULL, name = ?, username = ?
+           WHERE id = ?`,
+          [passwordHash, cleanName, cleanUsername, existingUser.id]
+        );
+
+        const updated = queryOne(
+          'SELECT id, name, email, username, role, is_locked, created_at FROM users WHERE id = ?',
+          [existingUser.id]
+        );
+
+        return res.status(200).json({
+          success: true,
+          message: `تم تحديث حساب القارئ (${updated.name}) وفك قفل جهازه بنجاح.`,
+          reader: {
+            id: updated.id,
+            name: updated.name,
+            email: updated.email,
+            username: updated.username,
+            role: updated.role,
+            isLocked: !!updated.is_locked,
+            createdAt: updated.created_at,
+          },
+        });
+      }
+
+      return res.status(409).json({
+        error: 'EMAIL_ALREADY_EXISTS',
+        message: 'هذا البريد الإلكتروني مسجل بالفعل لمستخدم بحساب إدارة أو مؤلفة.',
+      });
+    }
+
+    // Check username collision for new user
+    let finalUsername = cleanUsername;
+    let collisionCounter = 1;
+    while (queryOne('SELECT id FROM users WHERE LOWER(username) = ?', [finalUsername.toLowerCase()])) {
+      finalUsername = `${cleanUsername}_${collisionCounter++}`;
+    }
+
+    // 5. Insert new reader
     execute(
       `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
        VALUES (?, ?, ?, ?, NULL, 0, 'reader')`,
-      [cleanEmail, cleanUsername, trimmedName, passwordHash]
+      [cleanEmail, finalUsername, cleanName, passwordHash]
     );
 
     const newReader = queryOne(
@@ -83,7 +105,7 @@ export async function createReader(req, res) {
 
     return res.status(201).json({
       success: true,
-      message: 'تم إنشاء حساب القارئة بنجاح.',
+      message: 'تم إنشاء حساب القارئ وتفعيله بنجاح.',
       reader: {
         id: newReader.id,
         name: newReader.name,

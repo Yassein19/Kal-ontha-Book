@@ -26,6 +26,7 @@ import {
 export function AdminDashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(api.auth.getUser());
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   // Readers state
   const [readers, setReaders] = useState([]);
@@ -43,18 +44,52 @@ export function AdminDashboard() {
   const [lastCreated, setLastCreated] = useState(null);
   const [copied, setCopied] = useState(false);
 
+  // Inline login state
+  const [inlineEmail, setInlineEmail] = useState('');
+  const [inlinePassword, setInlinePassword] = useState('');
+  const [inlineLoginLoading, setInlineLoginLoading] = useState(false);
+  const [inlineLoginError, setInlineLoginError] = useState('');
+
   // Actions feedback
   const [actionMessage, setActionMessage] = useState({ type: '', text: '' });
 
-  // Verify Admin Access
+  // Verify Admin & Author Access with session revalidation
   useEffect(() => {
-    const user = api.auth.getUser();
-    setCurrentUser(user);
-    if (!user || user.role !== 'admin') {
-      setLoadingList(false);
-      return;
+    let isMounted = true;
+
+    async function verifyAndLoad() {
+      setCheckingAuth(true);
+      const localUser = api.auth.getUser();
+      if (localUser && (localUser.role === 'admin' || localUser.role === 'author')) {
+        setCurrentUser(localUser);
+      }
+
+      try {
+        const res = await api.auth.me();
+        if (isMounted && res.user) {
+          setCurrentUser(res.user);
+          localStorage.setItem('kal_ontha_user', JSON.stringify(res.user));
+          if (res.user.role === 'admin' || res.user.role === 'author') {
+            await fetchReaders();
+          }
+        }
+      } catch (err) {
+        if (err.status === 401) {
+          api.auth.logout();
+          if (isMounted) setCurrentUser(null);
+        } else if (localUser && (localUser.role === 'admin' || localUser.role === 'author')) {
+          await fetchReaders();
+        }
+      } finally {
+        if (isMounted) {
+          setCheckingAuth(false);
+          setLoadingList(false);
+        }
+      }
     }
-    fetchReaders();
+
+    verifyAndLoad();
+    return () => { isMounted = false; };
   }, []);
 
   const fetchReaders = async () => {
@@ -70,6 +105,26 @@ export function AdminDashboard() {
       });
     } finally {
       setLoadingList(false);
+    }
+  };
+
+  // Inline login for quick authentication without leaving the page
+  const handleInlineLogin = async (e) => {
+    e.preventDefault();
+    setInlineLoginError('');
+    setInlineLoginLoading(true);
+    try {
+      const res = await api.auth.login(inlineEmail, inlinePassword);
+      if (res.user && (res.user.role === 'admin' || res.user.role === 'author')) {
+        setCurrentUser(res.user);
+        await fetchReaders();
+      } else {
+        setInlineLoginError('تم تسجيل الدخول، لكن هذا الحساب ليس لديه صلاحيات الإدارة.');
+      }
+    } catch (err) {
+      setInlineLoginError(err.message || 'فشل تسجيل الدخول. يرجى التأكد من البريد وكلمة المرور.');
+    } finally {
+      setInlineLoginLoading(false);
     }
   };
 
@@ -102,16 +157,8 @@ export function AdminDashboard() {
     setCopied(false);
 
     // Client-side quick checks
-    if (name.trim().length < 2) {
-      setFormError('يرجى إدخال اسم القارئة بشكل صحيح (حرفين على الأقل).');
-      return;
-    }
     if (!email.includes('@') || !email.includes('.')) {
       setFormError('يرجى إدخال بريد إلكتروني صالح.');
-      return;
-    }
-    if (username.trim().length < 3) {
-      setFormError('اسم المستخدم يجب ألا يقل عن 3 أحرف.');
       return;
     }
     if (password.length < 6) {
@@ -119,19 +166,27 @@ export function AdminDashboard() {
       return;
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanUsername = (username && username.trim().length >= 3)
+      ? username.trim().toLowerCase().replace(/[^a-zA-Z0-9_-]/g, '')
+      : cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
+    const cleanName = (name && name.trim().length >= 2)
+      ? name.trim()
+      : `قارئ معتمد (${cleanUsername})`;
+
     setFormSubmitting(true);
     try {
       const res = await api.admin.createReader({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        username: username.trim().toLowerCase(),
+        name: cleanName,
+        email: cleanEmail,
+        username: cleanUsername,
         password,
       });
 
       setLastCreated({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        username: username.trim().toLowerCase(),
+        name: res.reader?.name || cleanName,
+        email: res.reader?.email || cleanEmail,
+        username: res.reader?.username || cleanUsername,
         password,
       });
 
@@ -145,7 +200,7 @@ export function AdminDashboard() {
       await fetchReaders();
       setActionMessage({
         type: 'success',
-        text: 'تم إنشاء حساب القارئة بنجاح! يمكنكِ الآن نسخ بيانات الدخول وإرسالها لها.',
+        text: res.message || 'تم اعتماد حساب القارئ بنجاح! يمكنك الآن نسخ بيانات الدخول وإرسالها له.',
       });
     } catch (err) {
       setFormError(err.message || 'فشل إنشاء الحساب. يرجى مراجعة البيانات.');
@@ -157,7 +212,7 @@ export function AdminDashboard() {
   // Copy credentials helper
   const copyCredentials = () => {
     if (!lastCreated) return;
-    const text = `مرحباً بكِ في كتاب «عيشي كأنثى» للكاتبة بدور لطفي ✨\nتم تفعيل حسابكِ في القارئ الرقمي المحمي:\n\n🔗 رابط الدخول: ${window.location.origin}/login\n📧 البريد الإلكتروني: ${lastCreated.email}\n👤 اسم المستخدم: ${lastCreated.username}\n🔑 كلمة المرور: ${lastCreated.password}\n\n*ملاحظة: سيتم اقتران الحساب بجهاز القراءة الأول الذي تسجلين الدخول منه لحماية حقوق الكتاب.*`;
+    const text = `مرحباً بك في كتاب «عيشي كأنثى» للكاتبة بدور لطفي ✨\nتم تفعيل حسابك في القارئ الرقمي المحمي:\n\n🔗 رابط الدخول: ${window.location.origin}/login\n📧 البريد الإلكتروني: ${lastCreated.email}\n👤 اسم المستخدم: ${lastCreated.username}\n🔑 كلمة المرور: ${lastCreated.password}\n\n*ملاحظة: سيتم اقتران الحساب بجهاز القراءة الأول الذي تسجل الدخول منه لحماية حقوق الكتاب.*`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
@@ -165,7 +220,7 @@ export function AdminDashboard() {
 
   // Reset device lock
   const handleResetLock = async (readerId, readerName) => {
-    if (!window.confirm(`هل أنتِ متأكدة من فك قفل الجهاز للقارئة (${readerName})؟ ستتمكن من تسجيل الدخول من جهاز جديد.`)) {
+    if (!window.confirm(`هل أنت متأكد من فك قفل الجهاز للقارئ (${readerName})؟ سيتمكن من تسجيل الدخول من جهاز جديد.`)) {
       return;
     }
 
@@ -180,7 +235,7 @@ export function AdminDashboard() {
 
   // Delete reader
   const handleDeleteReader = async (readerId, readerName) => {
-    if (!window.confirm(`تحذير: هل أنتِ متأكدة من حذف حساب القارئة (${readerName}) نهائياً؟`)) {
+    if (!window.confirm(`تحذير: هل أنت متأكد من حذف حساب القارئ (${readerName}) نهائياً؟`)) {
       return;
     }
 
@@ -193,8 +248,22 @@ export function AdminDashboard() {
     }
   };
 
-  // If user is not admin, show Access Denied guard
-  if (!currentUser || currentUser.role !== 'admin') {
+  const isAdminOrAuthor = currentUser && (currentUser.role === 'admin' || currentUser.role === 'author');
+
+  // Loading indicator while verifying authentication
+  if (checkingAuth && !isAdminOrAuthor) {
+    return (
+      <div className="page-admin">
+        <div className="site-container" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+          <RefreshCw size={36} className="spin-icon" color="#D4AF37" />
+          <p style={{ color: 'var(--text-secondary)' }}>جاري التحقق من صلاحيات الإدارة...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is neither admin nor author, show Access Denied with inline login
+  if (!isAdminOrAuthor) {
     return (
       <div className="page-admin">
         <div className="site-container admin-denied-container">
@@ -202,16 +271,76 @@ export function AdminDashboard() {
             <div className="denied-icon-box">
               <ShieldAlert size={48} color="#EF4444" />
             </div>
-            <h2>منطقة إدارة محمية (Admin Only)</h2>
+            <h2>منطقة إدارة محمية (Admin & Author Only)</h2>
             <p>
-              هذه الصفحة مخصصة لمدير النظام فقط لإدارة وتفعيل حسابات القارئات.
-              حسابك الحالي ليس لديه صلاحيات المشرف.
+              هذه الصفحة مخصصة للمدير العام والمؤلفة لإدارة وتفعيل حسابات القارئات وفك أقفال الأجهزة.
             </p>
-            <div className="denied-actions">
-              <Link to="/login" className="btn btn-gold">
-                تسجيل الدخول كمدير
+
+            {/* Quick Inline Login Form */}
+            <form onSubmit={handleInlineLogin} className="site-form" style={{ maxWidth: '380px', margin: '1.5rem auto 1rem', textAlign: 'right' }}>
+              {inlineLoginError && (
+                <div className="alert-error-box" style={{ marginBottom: '1rem', padding: '0.6rem 0.8rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#F87171', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertCircle size={16} color="#EF4444" />
+                  <span style={{ fontSize: '0.85rem' }}>{inlineLoginError}</span>
+                </div>
+              )}
+              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                <label className="form-label" style={{ fontSize: '0.85rem' }}>البريد الإلكتروني للإدارة</label>
+                <div className="input-with-icon">
+                  <Mail size={16} className="input-icon" />
+                  <input
+                    type="email"
+                    value={inlineEmail}
+                    onChange={(e) => setInlineEmail(e.target.value)}
+                    placeholder="yasssokamel@gmail.com"
+                    required
+                    className="form-input"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label className="form-label" style={{ fontSize: '0.85rem' }}>كلمة المرور</label>
+                <div className="input-with-icon">
+                  <Key size={16} className="input-icon" />
+                  <input
+                    type="password"
+                    value={inlinePassword}
+                    onChange={(e) => setInlinePassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="form-input"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+              <button type="submit" className="btn btn-gold btn-block" disabled={inlineLoginLoading}>
+                {inlineLoginLoading ? 'جاري تسجيل الدخول...' : 'دخول فوري إلى لوحة الإدارة'}
+              </button>
+
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => { setInlineEmail('yasssokamel@gmail.com'); setInlinePassword('Yassein123#'); }}
+                  style={{ background: 'rgba(212, 175, 55, 0.1)', border: '1px dashed var(--gold-primary)', color: 'var(--gold-light)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}
+                >
+                  المدير العام (Yassein)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setInlineEmail('bedour.lotfi77@gmail.com'); setInlinePassword('password123'); }}
+                  style={{ background: 'rgba(212, 175, 55, 0.1)', border: '1px dashed var(--gold-primary)', color: 'var(--gold-light)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}
+                >
+                  المؤلفة (Bedour)
+                </button>
+              </div>
+            </form>
+
+            <div className="denied-actions" style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <Link to="/login" state={{ from: { pathname: '/admin' } }} className="btn btn-outline btn-sm">
+                صفحة تسجيل الدخول الكاملة
               </Link>
-              <Link to="/" className="btn btn-outline">
+              <Link to="/" className="btn btn-outline btn-sm">
                 العودة للصفحة الرئيسية
               </Link>
             </div>
@@ -333,15 +462,17 @@ export function AdminDashboard() {
             <form onSubmit={handleCreateReader} className="site-form admin-form">
               {/* Full Name */}
               <div className="form-group">
-                <label className="form-label">اسم القارئة الكامل</label>
+                <div className="label-with-helper">
+                  <label className="form-label">اسم القارئ / القارئة</label>
+                  <span className="label-hint">اختياري (يُولّد تلقائياً إن تُرِك فارغاً)</span>
+                </div>
                 <div className="input-with-icon">
                   <User size={18} className="input-icon" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="مثال: نورة سالم العتيبي"
-                    required
+                    placeholder="مثال: أحمد الجمل أو نورة العتيبي"
                     className="form-input"
                   />
                 </div>
@@ -349,14 +480,14 @@ export function AdminDashboard() {
 
               {/* Email */}
               <div className="form-group">
-                <label className="form-label">البريد الإلكتروني للقارئة</label>
+                <label className="form-label">البريد الإلكتروني (مطلوب)</label>
                 <div className="input-with-icon">
                   <Mail size={18} className="input-icon" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => handleEmailChange(e.target.value)}
-                    placeholder="noura@example.com"
+                    placeholder="noura@example.com أو ahmed@gmail.com"
                     required
                     className="form-input"
                     dir="ltr"
@@ -368,7 +499,7 @@ export function AdminDashboard() {
               <div className="form-group">
                 <div className="label-with-helper">
                   <label className="form-label">اسم المستخدم (Username)</label>
-                  <span className="label-hint">تستطيع القارئة الدخول به</span>
+                  <span className="label-hint">اختياري (يُستخرج من البريد إن تُرِك فارغاً)</span>
                 </div>
                 <div className="input-with-icon">
                   <AtSign size={18} className="input-icon" />
@@ -376,8 +507,7 @@ export function AdminDashboard() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''))}
-                    placeholder="noura_reader"
-                    required
+                    placeholder="ahmed_reader"
                     className="form-input"
                     dir="ltr"
                   />

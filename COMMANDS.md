@@ -140,6 +140,7 @@ npm run seed
 | **المؤلفة (Author)** | `bedour.lotfi77@gmail.com` | `password123` | حساب الكاتبة بدور لطفي |
 | **قارئة 1** | `reader@kal-ontha.com` | `read2026` | قارئة معتمدة (مريم أحمد) |
 | **قارئة 2** | `zainabmahmoud290@gmail.com` | `zainab123` | قارئة معتمدة (زينب محمود) |
+| **قارئ 3** | `Ahmedelgamal1983@gmail.com` | `Ahmed123#` | قارئ معتمد (أحمد الجمل) |
 
 ---
 

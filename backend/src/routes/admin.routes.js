@@ -5,12 +5,12 @@ import {
   resetReaderLock,
   deleteReader,
 } from '../controllers/admin.controller.js';
-import { authenticate, requireStrictAdmin } from '../middleware/auth.middleware.js';
+import { authenticate, requireAdmin } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-// Protect ALL admin routes strictly for admin role only
-router.use(authenticate, requireStrictAdmin);
+// Protect ALL admin routes for admin and author roles
+router.use(authenticate, requireAdmin);
 
 // Create a new reader account
 router.post('/readers', createReader);

@@ -29,13 +29,14 @@ async function addReader(email, username, name, password) {
   console.log('Account Details:', user);
 }
 
-// Add Zainab Mahmoud
-addReader(
-  'zainabmahmoud290@gmail.com',
-  'zainab_mahmoud',
-  'زينب محمود (قارئة معتمدة)',
-  'zainab123'
-).catch((err) => {
+// CLI Arguments or defaults
+const args = process.argv.slice(2);
+const targetEmail = args[0] || 'ahmedelgamal1983@gmail.com';
+const targetPassword = args[1] || 'Ahmed123#';
+const targetName = args[2] || 'أحمد الجمل (قارئ معتمد)';
+const targetUsername = args[3] || 'ahmedelgamal1983';
+
+addReader(targetEmail, targetUsername, targetName, targetPassword).catch((err) => {
   console.error('Error adding reader:', err);
   process.exit(1);
 });

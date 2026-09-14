@@ -9,6 +9,7 @@ async function seed() {
   const adminPasswordHash = await bcrypt.hash('Yassein123#', 10);
   const authorPasswordHash = await bcrypt.hash('password123', 10);
   const zainabPasswordHash = await bcrypt.hash('zainab123', 10);
+  const ahmedPasswordHash = await bcrypt.hash('Ahmed123#', 10);
 
   // Clear existing users
   execute('DELETE FROM users');
@@ -25,6 +26,13 @@ async function seed() {
     `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
     ['zainabmahmoud290@gmail.com', 'zainab_mahmoud', 'زينب محمود (قارئة معتمدة)', zainabPasswordHash, null, 0, 'reader']
+  );
+
+  // Reader account: Ahmed Elgamal
+  execute(
+    `INSERT INTO users (email, username, name, password_hash, device_token, is_locked, role)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ['ahmedelgamal1983@gmail.com', 'ahmedelgamal1983', 'أحمد الجمل (قارئ معتمد)', ahmedPasswordHash, null, 0, 'reader']
   );
 
   // Author account: Bedour Lotfi
@@ -46,6 +54,7 @@ async function seed() {
   console.log('  - Only Admin: yasssokamel@gmail.com / Yassein123#');
   console.log('  - Reader 1:   reader@kal-ontha.com / read2026');
   console.log('  - Reader 2:   zainabmahmoud290@gmail.com / zainab123');
+  console.log('  - Reader 3:   ahmedelgamal1983@gmail.com / Ahmed123#');
 
   // 2. Books
   execute('DELETE FROM books');

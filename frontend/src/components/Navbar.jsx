@@ -29,7 +29,9 @@ export function Navbar() {
     { path: '/reader', label: 'القارئ الرقمي', highlight: true },
   ];
 
-  const navLinks = user?.role === 'admin'
+  const isAdminOrAuthor = user?.role === 'admin' || user?.role === 'author';
+
+  const navLinks = isAdminOrAuthor
     ? [...baseNavLinks, { path: '/admin', label: 'إدارة القارئات', isAdmin: true }]
     : baseNavLinks;
 
@@ -70,9 +72,15 @@ export function Navbar() {
             <div className="user-profile-badge">
               <div className="user-info-text">
                 <span className="user-name">{user.name || 'قارئة معتمدة'}</span>
-                <span className="user-status-tag">
-                  <Shield size={12} /> {user.role === 'admin' ? 'مدير النظام' : user.role === 'author' ? 'المؤلفة' : 'جهاز موثق'}
-                </span>
+                {isAdminOrAuthor ? (
+                  <Link to="/admin" className="user-status-tag" style={{ textDecoration: 'none', cursor: 'pointer' }} title="لوحة تحكم الإدارة">
+                    <Shield size={12} /> {user.role === 'admin' ? 'مدير النظام' : 'المؤلفة'}
+                  </Link>
+                ) : (
+                  <span className="user-status-tag">
+                    <Shield size={12} /> جهاز موثق
+                  </span>
+                )}
               </div>
               <button onClick={handleLogout} className="btn-logout" title="تسجيل الخروج">
                 <LogOut size={18} />

@@ -246,6 +246,13 @@ export function Reader() {
         </div>
 
         <div className="reader-top-actions">
+          {(user?.role === 'admin' || user?.role === 'author') && (
+            <Link to="/admin" className="btn-reader-action" title="لوحة إدارة القارئات" style={{ borderColor: 'var(--gold-primary)', color: 'var(--gold-light)' }}>
+              <Shield size={16} color="#D4AF37" />
+              <span className="action-text-desktop">لوحة الإدارة</span>
+            </Link>
+          )}
+
           <button
             onClick={handleToggleControls}
             className="btn-reader-action"
